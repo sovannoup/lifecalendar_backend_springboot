@@ -18,8 +18,8 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 @Slf4j
 public class NoteController {
-    @PostMapping("updatePassword")
-    public ResponseEntity<Response> updatePassword(@Valid UpdatePasswordRequest request){
-//        return ResponseEntity.ok().body(userService.updatePassword(request));
-    }
+//    @PostMapping("updatePassword")
+//    public ResponseEntity<Response> updatePassword(@Valid UpdatePasswordRequest request){
+////        return ResponseEntity.ok().body(userService.updatePassword(request));
+//    }
 }

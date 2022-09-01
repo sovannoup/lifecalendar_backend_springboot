@@ -98,15 +98,13 @@ public class UserService implements UserDetailsService {
 //        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), link));
         Map<String, String> result = new HashMap<>();
         result.put("token", token);
+        result.put("verifyCode", verifyToken);
         Response res = new Response(
                 200,
                 "Signup successfully",
                 result,
                 LocalDateTime.now()
         );
-        Map<String, String> response = new HashMap<>();
-        response.put("result", "success");
-        response.put("token", token);
         return res;
     }
 
