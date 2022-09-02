@@ -16,6 +16,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     User findByEmailAndPassword(String email, String password);
 
+    User findByEmailAndResetCode(String email, String resetCode);
+
     @Transactional
     @Modifying
     @Query("UPDATE Users a " +
@@ -25,6 +27,12 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Transactional
     @Modifying
     @Query("UPDATE Users a " +
-            "SET a.isVerified = TRUE WHERE a.email = ?1")
+            "SET a.enabled = TRUE WHERE a.email = ?1")
     int enableUser(String email);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Users a " +
+            "SET a.resetCode = ?2 WHERE a.email = ?1")
+    int updateResetCode(String email, String code);
 }

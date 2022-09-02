@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>life_calendar</name>
 	<description>Backend for Life Calendar Project</description>
-<!--	<properties>-->
+	<!--	<properties>-->
 <!--		<java.version>17</java.version>-->
 <!--	</properties>-->
 	<dependencies>

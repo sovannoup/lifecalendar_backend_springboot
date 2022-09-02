@@ -13,11 +13,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class SignupRequest {
 
-    @NotBlank(message = "Username should not be blank")
-    @NotNull(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 to 20 digits")
-    private final String username;
-
     @NotBlank(message = "Firstname should not be blank")
     @NotNull(message = "Firstname is required")
     @Size(max = 30, message = "Firstname must not be more than 30 digit")

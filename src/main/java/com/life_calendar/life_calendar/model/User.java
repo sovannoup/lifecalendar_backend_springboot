@@ -20,10 +20,6 @@ import java.util.Collections;
 public class User implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotBlank(message = "Username should not be blank")
-    @NotNull(message = "Username is required")
-    @Size(min = 3, max = 20, message = "Username must be between 3 to 20 digits")
-    private String username;
     @NotBlank(message = "Firstname should not be blank")
     @NotNull(message = "Firstname is required")
     @Size(max = 30, message = "Firstname must not be more than 30 digit")
@@ -48,10 +44,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
     private Boolean locked = false;
-    private Boolean isVerified = false;
+    private Boolean enabled = false;
+    private String resetCode = null;
 
-    public User(String username, String firstname, String lastname, String email, LocalDateTime birthday, String password ,UserRole userRole) {
-        this.username = username;
+    public User(String firstname, String lastname, String email, LocalDateTime birthday, String password ,UserRole userRole) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
@@ -67,22 +63,27 @@ public class User implements UserDetails {
     }
 
     @Override
+    public String getUsername() {
+        return firstname + " " + lastname;
+    }
+
+    @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return !this.locked;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return locked;
+        return this.locked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return !this.enabled;
     }
 
     @Override
     public boolean isEnabled() {
-        return this.isVerified;
+        return this.enabled;
     }
 }

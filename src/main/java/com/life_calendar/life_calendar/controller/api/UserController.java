@@ -46,10 +46,14 @@ public class UserController {
         return ResponseEntity.ok().body(userService.reset(request));
     }
 
-    @PostMapping("updatePassword")
-    public ResponseEntity<Response> updatePassword(@Valid UpdatePasswordRequest request){
-        return ResponseEntity.ok().body(userService.updatePassword(request));
+    @PostMapping("updateResetPassword")
+    public ResponseEntity<Response> updatePassword(@Valid UpdatePasswordRequest request, @RequestParam("code") String code){
+        if (code == null){
+            throw new ApiRequestException("Code is required");
+        }
+        return ResponseEntity.ok().body(userService.updateResetPassword(request, code));
     }
+
 
     @PostMapping("updateProfileImage")
     public ResponseEntity<Response> updateProfileImage(@RequestParam("imageUrl") MultipartFile file) throws IOException {

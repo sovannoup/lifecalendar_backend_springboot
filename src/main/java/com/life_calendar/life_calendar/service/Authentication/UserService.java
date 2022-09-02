@@ -1,7 +1,9 @@
 package com.life_calendar.life_calendar.service.Authentication;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.life_calendar.life_calendar.controller.api.request.ResetRequest;
 import com.life_calendar.life_calendar.controller.api.request.SignupRequest;
 import com.life_calendar.life_calendar.controller.api.request.UpdatePasswordRequest;
@@ -71,7 +73,7 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException("Email already exist");
         }
         String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
-        User user = new User(request.getUsername(),request.getFirstname(),request.getLastname(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
+        User user = new User(request.getFirstname(),request.getLastname(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
 
         Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
         String token = JWT.create()
@@ -118,15 +120,23 @@ public class UserService implements UserDetailsService {
         {
             throw new ApiRequestException("Email doesn't exist");
         }
-        SecureRandom secureRandom = new SecureRandom();
-        int randomInt = secureRandom.nextInt(999999 - 100000) + 100000;
-        log.info(String.valueOf(randomInt));
+//        SecureRandom secureRandom = new SecureRandom();
+//        int randomInt = secureRandom.nextInt(999999 - 100000) + 100000;
+        String verifyToken = UUID.randomUUID().toString();
+
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        userRepo.updateResetCode(request.getEmail(), verifyToken);
+        String code = JWT.create()
+                .withSubject(verifyToken)
+                .withExpiresAt(new Date(System.currentTimeMillis() + 5 * 60 * 1000)) // 5 min
+                .withIssuer(request.getEmail())
+                .sign(algorithm);
 
 //        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), code));
 
 
         Map<String, Object> result = new HashMap<>();
-        result.put("verifyCode", randomInt);
+        result.put("verifyCode", code);
         Response res = new Response(
                 200,
                 "Verify code already sent",
@@ -137,19 +147,31 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public Response updatePassword(UpdatePasswordRequest request){
-        User isUserExisted = userRepo.findByEmail(request.getEmail());
-        if(isUserExisted == null)
+    public Response updateResetPassword(UpdatePasswordRequest request, String code){
+        if(code == null)
         {
-            throw new ApiRequestException("Email doesn't exist");
+            throw new ApiRequestException("Code is required");
         }
 
         if(request.getPassword() == null){
             throw new ApiRequestException("Invalid password");
         }
 
-        String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
-        userRepo.updatePassword(request.getEmail(), encodedPass);
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(code);
+        String resetCode = decodedJWT.getSubject();
+        String email = decodedJWT.getIssuer();
+
+        User user = userRepo.findByEmailAndResetCode(email, resetCode);
+        if(user == null)
+        {
+            throw new ApiRequestException("Invalid code");
+        }else {
+            String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
+            userRepo.updatePassword(email, encodedPass);
+            userRepo.updateResetCode(email, "");
+        }
         Response res = new Response(
                 200,
                 "Password already updated",

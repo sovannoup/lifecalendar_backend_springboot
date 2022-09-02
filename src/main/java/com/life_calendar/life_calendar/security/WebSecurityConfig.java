@@ -49,6 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/swagger-ui/**", "/javainuse-openapi/**", "/v3/api-docs/**").permitAll();
         http.authorizeRequests().antMatchers("/api/signup/**").permitAll();
         http.authorizeRequests().antMatchers("/api/reset/**").permitAll();
+        http.authorizeRequests().antMatchers("/api/updateResetPassword/**").permitAll();
         http.authorizeRequests().antMatchers("/api/login/**").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("USER");
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ADMIN");

@@ -34,6 +34,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 || request.getRequestURI().equals("/api/signup")
                 || request.getRequestURI().equals("/api/signup/confirm")
                 || request.getRequestURI().equals("/api/reset")
+                || request.getRequestURI().equals("/api/updateResetPassword/**")
                 || request.getRequestURI().equals("/swagger-ui/**")
                 || request.getRequestURI().equals("/javainuse-openapi/**")
                 || request.getRequestURI().equals("/v3/api-docs/**")
