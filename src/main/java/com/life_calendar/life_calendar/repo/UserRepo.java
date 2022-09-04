@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -35,4 +36,10 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("UPDATE Users a " +
             "SET a.resetCode = ?2 WHERE a.email = ?1")
     int updateResetCode(String email, String code);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Users a " +
+            "SET a.firstname = ?1, a.lastname = ?2, a.password = ?3, a.birthday = ?4 WHERE a.email = ?5")
+    int updateUserProfile(String firstname, String lastname, String newPassword, LocalDateTime birthday, String email);
 }

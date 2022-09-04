@@ -7,6 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.life_calendar.life_calendar.controller.api.request.ResetRequest;
 import com.life_calendar.life_calendar.controller.api.request.SignupRequest;
 import com.life_calendar.life_calendar.controller.api.request.UpdatePasswordRequest;
+import com.life_calendar.life_calendar.controller.api.request.UserProfileRequest;
 import com.life_calendar.life_calendar.controller.api.response.Response;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
 import com.life_calendar.life_calendar.model.ConfirmToken;
@@ -141,6 +142,24 @@ public class UserService implements UserDetailsService {
                 200,
                 "Verify code already sent",
                 result,
+                LocalDateTime.now()
+        );
+        return res;
+    }
+
+    @Transactional
+    public Response updateUserProfile(UserProfileRequest request){
+        User user = userRepo.findByEmailAndPassword(request.getEmail(), request.getCurrentPassword());
+        if(user != null)
+        {
+            throw new ApiRequestException("Couldn't find user with that current password");
+        }
+        String newEncode = bCryptPasswordEncoder.encode(request.getNewPassword());
+        userRepo.updateUserProfile(request.getFirstname(), request.getLastname(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
+        Response res = new Response(
+                200,
+                "user information updated",
+                null,
                 LocalDateTime.now()
         );
         return res;

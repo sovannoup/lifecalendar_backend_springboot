@@ -3,6 +3,7 @@ package com.life_calendar.life_calendar.controller.api;
 import com.life_calendar.life_calendar.controller.api.request.ResetRequest;
 import com.life_calendar.life_calendar.controller.api.request.SignupRequest;
 import com.life_calendar.life_calendar.controller.api.request.UpdatePasswordRequest;
+import com.life_calendar.life_calendar.controller.api.request.UserProfileRequest;
 import com.life_calendar.life_calendar.controller.api.response.Response;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
 import com.life_calendar.life_calendar.model.User;
@@ -55,9 +56,14 @@ public class UserController {
     }
 
 
-    @PostMapping("updateProfileImage")
+    @PutMapping("updateProfileImage")
     public ResponseEntity<Response> updateProfileImage(@RequestParam("imageUrl") MultipartFile file) throws IOException {
         return ResponseEntity.ok().body(userService.updateProfileImage(file));
+    }
+
+    @PutMapping("updateProfile")
+    public ResponseEntity<Response> updateUserProfile(@Valid UserProfileRequest request) throws IOException {
+        return ResponseEntity.ok().body(userService.updateUserProfile(request));
     }
 
     @GetMapping(path = "users")
