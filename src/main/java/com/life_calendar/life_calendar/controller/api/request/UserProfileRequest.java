@@ -23,13 +23,9 @@ public class UserProfileRequest {
     @Size(max = 30, message = "Lastname must not be more than 30 digit")
     private final String lastname;
 
-    @NotBlank(message = "Password should not be blank")
-    @NotNull(message = "Password is required")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$", message = "require at least 1 lower cha, 1 upper cha, 1 number, and at least 8 digit")
     private final String currentPassword;
 
-    @NotBlank(message = "Password should not be blank")
-    @NotNull(message = "Password is required")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$", message = "require at least 1 lower cha, 1 upper cha, 1 number, and at least 8 digit")
     private final String newPassword;
 

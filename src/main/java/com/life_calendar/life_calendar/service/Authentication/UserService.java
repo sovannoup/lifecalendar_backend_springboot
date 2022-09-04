@@ -149,13 +149,25 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public Response updateUserProfile(UserProfileRequest request){
-        User user = userRepo.findByEmailAndPassword(request.getEmail(), request.getCurrentPassword());
-        if(user != null)
-        {
-            throw new ApiRequestException("Couldn't find user with that current password");
+        if(request.getCurrentPassword() != null && request.getNewPassword() != null){
+            User user = userRepo.findByEmail(request.getEmail());
+            if(!bCryptPasswordEncoder.matches(request.getCurrentPassword(), user.getPassword()))
+            {
+                throw new ApiRequestException("Invalid current password");
+            }
+            String newEncode = bCryptPasswordEncoder.encode(request.getNewPassword());
+            userRepo.updateUserProfile(request.getFirstname(), request.getLastname(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            log.info("Updating info with password input");
+        }else{
+            boolean isUser = userRepo.existsByEmail(request.getEmail());
+            if(!isUser)
+            {
+                throw new ApiRequestException("Couldn't find user with that Email");
+            }
+            userRepo.updateProfileWithoutPassword(request.getFirstname(), request.getLastname(), LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            log.info("Updating info without password input");
         }
-        String newEncode = bCryptPasswordEncoder.encode(request.getNewPassword());
-        userRepo.updateUserProfile(request.getFirstname(), request.getLastname(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
+
         Response res = new Response(
                 200,
                 "user information updated",

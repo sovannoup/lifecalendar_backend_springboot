@@ -14,6 +14,7 @@ import java.util.Optional;
 @Transactional
 public interface UserRepo extends JpaRepository<User, Long> {
     User findByEmail(String email);
+    boolean existsByEmail(String email);
 
     User findByEmailAndPassword(String email, String password);
 
@@ -42,4 +43,10 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("UPDATE Users a " +
             "SET a.firstname = ?1, a.lastname = ?2, a.password = ?3, a.birthday = ?4 WHERE a.email = ?5")
     int updateUserProfile(String firstname, String lastname, String newPassword, LocalDateTime birthday, String email);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Users a " +
+            "SET a.firstname = ?1, a.lastname = ?2, a.birthday = ?3 WHERE a.email = ?4")
+    int updateProfileWithoutPassword(String firstname, String lastname, LocalDateTime birthday, String email);
 }
