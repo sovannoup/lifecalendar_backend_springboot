@@ -43,12 +43,12 @@ public class UserController {
     }
 
     @PostMapping("reset")
-    public ResponseEntity<Response> reset(@Valid ResetRequest request){
+    public ResponseEntity<Response> reset(@Valid @RequestBody ResetRequest request){
         return ResponseEntity.ok().body(userService.reset(request));
     }
 
     @PostMapping("updateResetPassword")
-    public ResponseEntity<Response> updatePassword(@Valid UpdatePasswordRequest request, @RequestParam("code") String code){
+    public ResponseEntity<Response> updatePassword(@Valid @RequestBody UpdatePasswordRequest request, @RequestParam("code") String code) throws IOException{
         if (code == null){
             throw new ApiRequestException("Code is required");
         }
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @PutMapping("updateProfile")
-    public ResponseEntity<Response> updateUserProfile(@Valid UserProfileRequest request) throws IOException {
+    public ResponseEntity<Response> updateUserProfile(@Valid @RequestBody UserProfileRequest request) throws IOException {
         return ResponseEntity.ok().body(userService.updateUserProfile(request));
     }
 

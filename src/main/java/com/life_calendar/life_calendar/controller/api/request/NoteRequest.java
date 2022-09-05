@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class NoteRequest {
     @NotBlank(message = "Id should not be blank")
     @NotNull(message = "Id is required")
-    private final String noteId;
-    private final String content;
-    private final Long email;
+    private String noteId;
+    private String content;
+    private Long email;
 }

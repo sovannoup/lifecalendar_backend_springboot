@@ -3,6 +3,7 @@ package com.life_calendar.life_calendar.service.Authentication;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.life_calendar.life_calendar.controller.api.request.ResetRequest;
 import com.life_calendar.life_calendar.controller.api.request.SignupRequest;
@@ -188,21 +189,26 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException("Invalid password");
         }
 
-        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT = verifier.verify(code);
-        String resetCode = decodedJWT.getSubject();
-        String email = decodedJWT.getIssuer();
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            DecodedJWT decodedJWT = verifier.verify(code);
+            String resetCode = decodedJWT.getSubject();
+            String email = decodedJWT.getIssuer();
 
-        User user = userRepo.findByEmailAndResetCode(email, resetCode);
-        if(user == null)
-        {
-            throw new ApiRequestException("Invalid code");
-        }else {
-            String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
-            userRepo.updatePassword(email, encodedPass);
-            userRepo.updateResetCode(email, "");
+            User user = userRepo.findByEmailAndResetCode(email, resetCode);
+            if(user == null)
+            {
+                throw new ApiRequestException("Invalid code");
+            }else {
+                String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
+                userRepo.updatePassword(email, encodedPass);
+                userRepo.updateResetCode(email, "");
+            }
+        }catch (TokenExpiredException e){
+            throw new ApiRequestException(e.getMessage());
         }
+
         Response res = new Response(
                 200,
                 "Password already updated",

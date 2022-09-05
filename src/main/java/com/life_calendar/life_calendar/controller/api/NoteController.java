@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -44,12 +41,12 @@ public class NoteController {
     }
 
     @GetMapping("get")
-    public ResponseEntity<Response> getNote(@Valid NoteRequest request){
+    public ResponseEntity<Response> getNote(@Valid @RequestBody NoteRequest request){
         String email = getEmailHeader();
         return ResponseEntity.ok().body(noteService.getNote(request, email));
     }
     @PostMapping("update")
-    public ResponseEntity<Response> updateNote(@Valid NoteRequest request){
+    public ResponseEntity<Response> updateNote(@Valid @RequestBody NoteRequest request){
         String email = getEmailHeader();
         return ResponseEntity.ok().body(noteService.updateNote(request, email));
     }

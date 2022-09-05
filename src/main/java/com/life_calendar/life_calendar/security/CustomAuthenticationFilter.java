@@ -3,6 +3,7 @@ package com.life_calendar.life_calendar.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.life_calendar.life_calendar.controller.api.request.LoginRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,10 +37,36 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = request.getParameter("email");
-        String password = request.getParameter("password");
-        log.info("Username is {} !", username);
-        log.info("Password is {} !", password);
+        String username = null;
+        String password = null;
+        if ("application/json".equals(request.getHeader("Content-Type"))) {
+            try {
+                /*
+                 * HttpServletRequest can be read only once
+                 */
+                StringBuffer sb = new StringBuffer();
+                String line = null;
+
+                BufferedReader reader = request.getReader();
+                while ((line = reader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                //json transformation
+                ObjectMapper mapper = new ObjectMapper();
+                LoginRequest loginRequest = mapper.readValue(sb.toString(), LoginRequest.class);
+
+                username = loginRequest.getEmail();
+                password = loginRequest.getPassword();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+//        String username = request.getParameter("email");
+//        String password = request.getParameter("password");
+//        log.info("Username is {} !", username);
+//        log.info("Password is {} !", password);
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         return authenticationManager.authenticate(authenticationToken);
     }
