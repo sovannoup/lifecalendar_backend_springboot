@@ -24,34 +24,28 @@ public class NoteService {
     private final NoteRepo noteRepo;
 
     @Async
-    public Response getNote(NoteRequest noteRequest, String email){
-//        User isUser = userRepo.findByEmail(email);
-//        if(isUser == null)
-//        {
-//            throw new ApiRequestException("Email not exist");
-//        }
-//        log.info("ID id : {}", noteRequest.getNoteId());
-//        Note isNote = noteRepo.findByNoteIdAndEmail(noteRequest.getNoteId(), email);
-//        if(isNote == null)
-//        {
-//            log.info("note is not exist !");
-//            Note note = new Note(noteRequest.getNoteId(), email, LocalDateTime.now(), LocalDateTime.now());
-//            noteRepo.save(note);
-//            Map<String, String> result = new HashMap<>();
-//            result.put("content", note.getContent());
-//            Response res = new Response(
-//                    200,
-//                    "success",
-//                    result,
-//                    LocalDateTime.now()
-//            );
-//            return res;
-//        }
-//        log.info("note is exist !");
-
+    public Response getSingleNote(NoteRequest request, String email){
+        User isUser = userRepo.findByEmail(email);
+        if(isUser == null)
+        {
+            throw new ApiRequestException("Email not exist");
+        }
+        Note isNote = noteRepo.findByIdAndEmail(Long.parseLong(request.getId()), email);
+        if(isNote == null)
+        {
+            Map<String, String> result = new HashMap<>();
+            result.put("result", "Note not found");
+            Response res = new Response(
+                    200,
+                    "success",
+                    result,
+                    LocalDateTime.now()
+            );
+            return res;
+        }
         Map<String, String> result = new HashMap<>();
-//        result.put("content", isNote.getContent());
-//        result.put("lastEdited", isNote.getLastEditedAt().toString());
+        result.put("content", isNote.getContent());
+        result.put("lastEdited", isNote.getLastEditedAt().toString());
         Response res = new Response(
                 200,
                 "success",
@@ -62,17 +56,20 @@ public class NoteService {
     }
 
     @Async
-    public Response updateNote(NoteRequest noteRequest, String email)
+    public Response updateNote(NoteRequest request, String email)
     {
         User isUserExisted = userRepo.findByEmail(email);
         if(isUserExisted == null)
         {
             throw new ApiRequestException("Email doesn't exist");
         }
-        if(noteRequest.getContent() == null){
+        if(request.getId() == null){
+            throw new ApiRequestException("id is required");
+        }
+        if(request.getContent() == null){
             throw new ApiRequestException("Content is required");
         }
-        noteRepo.updateNoteContent(noteRequest.getColumnId(), noteRequest.getContent(), email, LocalDateTime.now());
+        noteRepo.updateNoteContent(Long.parseLong(request.getId()), request.getContent(), email, LocalDateTime.now());
 
         Map<String, String> result = new HashMap<>();
 

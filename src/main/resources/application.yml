@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    password: 87158f290c53857fb4d867d71a4664f612f0d594805287ee47c1cde31332858e
-    url: jdbc:postgresql://ec2-44-209-158-64.compute-1.amazonaws.com/d7d3nqaq1s737k
-    username: qsdtwcjvaeiwoi
+    password: admin
+    url: jdbc:postgresql://localhost:5432/lifeCalendar
+    username: postgres
   jpa:
     hibernate:
       ddl-auto: update

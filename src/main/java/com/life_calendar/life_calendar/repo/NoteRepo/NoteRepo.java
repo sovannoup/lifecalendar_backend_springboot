@@ -15,10 +15,11 @@ import java.util.Optional;
 public interface NoteRepo extends JpaRepository<Note, Long> {
     List<Note> findByColumnIdAndEmail(String id, String email);
 
+    Note findByIdAndEmail(Long id, String email);
     @Transactional
     @Modifying
     @Query("UPDATE note c " +
             "SET c.content = ?2, c.lastEditedAt = ?4 " +
-            "WHERE c.columnId = ?1 and c.email = ?3")
-    int updateNoteContent(String columnId, String content, String email, LocalDateTime lastEditedAt);
+            "WHERE c.id = ?1 and c.email = ?3")
+    int updateNoteContent(Long id, String content, String email, LocalDateTime lastEditedAt);
 }

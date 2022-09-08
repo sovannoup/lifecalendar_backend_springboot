@@ -40,10 +40,10 @@ public class NoteController {
         return decodedJWT.getSubject();
     }
 
-    @GetMapping("get")
-    public ResponseEntity<Response> getNote(@Valid @RequestBody NoteRequest request){
+    @PostMapping("getsinglenote")
+    public ResponseEntity<Response> getSingleNote(@Valid @RequestBody NoteRequest request){
         String email = getEmailHeader();
-        return ResponseEntity.ok().body(noteService.getNote(request, email));
+        return ResponseEntity.ok().body(noteService.getSingleNote(request, email));
     }
     @PostMapping("update")
     public ResponseEntity<Response> updateNote(@Valid @RequestBody NoteRequest request){

@@ -212,7 +212,7 @@ public class UserService implements UserDetailsService {
                 calendarRepo.save(calendar);
                 List<Note> notes = new ArrayList<>();
                 for (int i = 0; i < 7; i++) {
-                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
                     notes.add(temp);
                 }
                 result.put("notes", notes);
@@ -224,7 +224,7 @@ public class UserService implements UserDetailsService {
                 }else{
                     notes = new ArrayList<>();
                     for (int i = 0; i < 7; i++) {
-                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
                         notes.add(temp);
                     }
                     result.put("notes", notes);
@@ -256,7 +256,7 @@ public class UserService implements UserDetailsService {
                 calendarRepo.save(calendar);
                 List<Note> notes = new ArrayList<>();
                 for (int i = 0; i < 7; i++) {
-                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
                     notes.add(temp);
                 }
                 result.put("notes", notes);
@@ -283,7 +283,7 @@ public class UserService implements UserDetailsService {
                 }else{
                     notes = new ArrayList<>();
                     for (int i = 0; i < 7; i++) {
-                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
                         notes.add(temp);
                     }
                     result.put("notes", notes);

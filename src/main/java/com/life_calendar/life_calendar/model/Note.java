@@ -21,10 +21,11 @@ public class Note {
     private String content = "";
     private LocalDateTime lastEditedAt;
 
-    public Note(String columnId, String email, LocalDate noteDate, String content) {
+    public Note(String columnId, String email, LocalDate noteDate, String content, LocalDateTime lastEditedAt) {
         this.columnId = columnId;
         this.email = email;
         this.noteDate = noteDate;
         this.content = content;
+        this.lastEditedAt = lastEditedAt;
     }
 }
