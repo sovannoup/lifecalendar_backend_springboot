@@ -5,20 +5,21 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.life_calendar.life_calendar.controller.api.request.ResetRequest;
-import com.life_calendar.life_calendar.controller.api.request.SignupRequest;
-import com.life_calendar.life_calendar.controller.api.request.UpdatePasswordRequest;
-import com.life_calendar.life_calendar.controller.api.request.UserProfileRequest;
+import com.life_calendar.life_calendar.controller.api.request.*;
 import com.life_calendar.life_calendar.controller.api.response.Response;
+import com.life_calendar.life_calendar.controller.api.response.UserResponse;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
-import com.life_calendar.life_calendar.model.ConfirmToken;
-import com.life_calendar.life_calendar.model.User;
-import com.life_calendar.life_calendar.model.UserRole;
+import com.life_calendar.life_calendar.model.*;
+import com.life_calendar.life_calendar.model.Calendar;
+import com.life_calendar.life_calendar.repo.Calendar.CalendarRepo;
+import com.life_calendar.life_calendar.repo.NoteRepo.NoteRepo;
 import com.life_calendar.life_calendar.repo.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
+import org.joda.time.DateTime;
+import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,23 +30,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class UserService implements UserDetailsService {
-    private final static String USER_NOT_FOUND_MSG =
-            "user with email %s not found";
+    @Autowired
+    ServletContext context;
+    @Autowired
+    HttpServletRequest httpServletRequest;
     private final UserRepo userRepo;
+    private final CalendarRepo calendarRepo;
+    private final NoteRepo noteRepo;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ConfirmTokenService confirmTokenService;
     private final EmailSenderService emailSenderService;
@@ -112,10 +122,6 @@ public class UserService implements UserDetailsService {
         return res;
     }
 
-    public List<User> getUsers(){
-        return userRepo.findAll();
-    }
-
     public Response reset(ResetRequest request){
         User isUserExisted = userRepo.findByEmail(request.getEmail());
         if(isUserExisted == null)
@@ -148,6 +154,152 @@ public class UserService implements UserDetailsService {
         return res;
     }
 
+
+    public Response getHomeDisplay(String columnId) {
+        Map<String, Object> result = new HashMap<>();
+
+        String token = getToken();
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String email = decodedJWT.getSubject();
+
+
+        //        Find user
+        User user = userRepo.findByEmail(email);
+        if(user == null){
+            throw new ApiRequestException("Token is invalid");
+        }
+
+        if (columnId == null){
+            UserResponse userInfo = new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(), user.getBirthday());
+            result.put("userInfo", userInfo);
+
+
+//        Get week note
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            cal.setTime(new Date());
+            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+
+//        Date From Mon
+            LocalDate d_from = LocalDate.parse(formatter.format(cal.getTime()));
+
+            //Each day of 1 week
+            List<LocalDate> dailyDate = new ArrayList<>();
+            dailyDate.add(d_from);
+            for (int i = 0; i < 6; i++) {
+                cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
+                LocalDate d = LocalDate.parse(formatter.format(cal.getTime()));
+                dailyDate.add(d);
+            }
+
+
+            cal.add(java.util.Calendar.DAY_OF_WEEK, 6);
+            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+            LocalDate d_to = LocalDate.parse(formatter.format(cal.getTime()));
+
+//        Date To Sun
+
+            Calendar calendar = calendarRepo.findByDateFromAndEmail(d_from, email);
+            if(calendar == null) {
+                // weeks from birthday
+                DateTime d1 = new DateTime(DateTime.parse(user.getBirthday().toString()));
+                DateTime d2 = new DateTime();
+
+                String weeksIdOrColumnId = String.valueOf(Weeks.weeksBetween(d1, d2).getWeeks());
+                calendar = new Calendar(email, weeksIdOrColumnId, d_from, d_to);
+                calendarRepo.save(calendar);
+                List<Note> notes = new ArrayList<>();
+                for (int i = 0; i < 7; i++) {
+                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                    notes.add(temp);
+                }
+                result.put("notes", notes);
+            }else {
+                List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
+
+                if (!notes.isEmpty()){
+                    result.put("notes", notes);
+                }else{
+                    notes = new ArrayList<>();
+                    for (int i = 0; i < 7; i++) {
+                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                        notes.add(temp);
+                    }
+                    result.put("notes", notes);
+                }
+            }
+        }else{
+            Calendar calendar = calendarRepo.findByColumnIdAndEmail(columnId, email);
+            if(calendar == null) {
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Calendar calen = java.util.Calendar.getInstance();
+                Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                calen.setTime(bd);
+                calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+                calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(columnId) + 1);
+                LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
+                List<LocalDate> dailyDate = new ArrayList<>();
+                dailyDate.add(d_from);
+                for (int i = 0; i < 6; i++) {
+                    calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
+                    LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
+                    dailyDate.add(d);
+                }
+                calen.add(java.util.Calendar.DAY_OF_WEEK, 6);
+                calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+                LocalDate d_to = LocalDate.parse(formatter.format(calen.getTime()));
+                calendar = new Calendar(email, columnId, d_from, d_to);
+
+                calendarRepo.save(calendar);
+                List<Note> notes = new ArrayList<>();
+                for (int i = 0; i < 7; i++) {
+                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                    notes.add(temp);
+                }
+                result.put("notes", notes);
+            }else {
+                List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Calendar calen = java.util.Calendar.getInstance();
+                Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                calen.setTime(bd);
+                calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+                calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(columnId) + 1);
+                LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
+                List<LocalDate> dailyDate = new ArrayList<>();
+                dailyDate.add(d_from);
+                for (int i = 0; i < 6; i++) {
+                    calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
+                    LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
+                    dailyDate.add(d);
+                }
+
+                if (!notes.isEmpty()){
+                    result.put("notes", notes);
+                }else{
+                    notes = new ArrayList<>();
+                    for (int i = 0; i < 7; i++) {
+                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), ""));
+                        notes.add(temp);
+                    }
+                    result.put("notes", notes);
+                }
+            }
+        }
+
+
+        Response res = new Response(
+                200,
+                "user information",
+                result,
+                LocalDateTime.now()
+        );
+        return res;
+    }
     @Transactional
     public Response updateUserProfile(UserProfileRequest request){
         if(request.getCurrentPassword() != null && request.getNewPassword() != null){
@@ -217,8 +369,7 @@ public class UserService implements UserDetailsService {
         );
         return res;
     }
-    @Autowired
-    ServletContext context;
+
     @Transactional
     public Response updateProfileImage(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
@@ -261,6 +412,10 @@ public class UserService implements UserDetailsService {
         return res;
     }
 
+    public String getToken(){
+        String headerAuth = httpServletRequest.getHeader(AUTHORIZATION);
+        return headerAuth.substring("Bearer ".length());
+    }
     private String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +

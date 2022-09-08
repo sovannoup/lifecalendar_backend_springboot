@@ -1,13 +1,11 @@
 package com.life_calendar.life_calendar.controller.api;
 
-import com.life_calendar.life_calendar.controller.api.request.ResetRequest;
-import com.life_calendar.life_calendar.controller.api.request.SignupRequest;
-import com.life_calendar.life_calendar.controller.api.request.UpdatePasswordRequest;
-import com.life_calendar.life_calendar.controller.api.request.UserProfileRequest;
+import com.life_calendar.life_calendar.controller.api.request.*;
 import com.life_calendar.life_calendar.controller.api.response.Response;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
 import com.life_calendar.life_calendar.model.User;
 import com.life_calendar.life_calendar.service.Authentication.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -66,8 +65,8 @@ public class UserController {
         return ResponseEntity.ok().body(userService.updateUserProfile(request));
     }
 
-    @GetMapping(path = "users")
-    public List<User> getUsers(){
-        return userService.getUsers();
+    @GetMapping(path = "gethomeinfo")
+    public ResponseEntity<Response> getHomeDisplayInfo(@Parameter(ref = "columnId") String columnId) throws IOException, ParseException {
+        return ResponseEntity.ok().body(userService.getHomeDisplay(columnId));
     }
 }

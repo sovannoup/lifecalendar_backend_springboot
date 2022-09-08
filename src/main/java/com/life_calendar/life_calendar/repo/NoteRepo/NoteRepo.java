@@ -7,17 +7,18 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 @Transactional
 public interface NoteRepo extends JpaRepository<Note, Long> {
-    Note findByNoteIdAndEmail(String id, String email);
+    List<Note> findByColumnIdAndEmail(String id, String email);
 
     @Transactional
     @Modifying
     @Query("UPDATE note c " +
             "SET c.content = ?2, c.lastEditedAt = ?4 " +
-            "WHERE c.noteId = ?1 and c.email = ?3")
-    int updateNoteContent(String noteId, String content, String email, LocalDateTime lastEditedAt);
+            "WHERE c.columnId = ?1 and c.email = ?3")
+    int updateNoteContent(String columnId, String content, String email, LocalDateTime lastEditedAt);
 }

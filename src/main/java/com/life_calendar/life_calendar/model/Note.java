@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,17 +15,16 @@ import java.time.LocalDateTime;
 public class Note {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String noteId;
+    private String columnId;
     private String email;
+    private LocalDate noteDate;
     private String content = "";
-    private LocalDateTime createdAt;
     private LocalDateTime lastEditedAt;
-    private boolean isEdited = true;
 
-    public Note(String noteId, String email, LocalDateTime createdAt, LocalDateTime lastEditedAt) {
-        this.noteId = noteId;
+    public Note(String columnId, String email, LocalDate noteDate, String content) {
+        this.columnId = columnId;
         this.email = email;
-        this.createdAt = createdAt;
-        this.lastEditedAt = lastEditedAt;
+        this.noteDate = noteDate;
+        this.content = content;
     }
 }
