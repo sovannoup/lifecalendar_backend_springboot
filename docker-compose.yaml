@@ -1,10 +1,12 @@
+version: "3.7"
 services:
   postgres:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_USER: life_calendar
-      POSTGRES_PASSWORD: lifeCalendar2022
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: iamadmin
+      POSTGRES_DB:lifeCalendar
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
@@ -12,14 +14,24 @@ services:
       - "5432:5432"
     networks:
       - postgres
-    restart: unless-stopped
+    restart: always
+
+  api_service:
+    build: .
+    restart: always
+    ports:
+      - 3031:3031
+    depends_on:
+      - postgres
+    links:
+      - postgres:database
 
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-lifecalendar76@gmail.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-lifecalendar009}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-noupsovan18@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
       - pgadmin:/var/lib/pgadmin
@@ -28,7 +40,7 @@ services:
       - "5050:80"
     networks:
       - postgres
-    restart: unless-stopped
+    restart: always
 
 networks:
   postgres:

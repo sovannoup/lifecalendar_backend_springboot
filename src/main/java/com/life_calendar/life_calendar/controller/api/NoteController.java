@@ -50,9 +50,4 @@ public class NoteController {
         String email = getEmailHeader();
         return ResponseEntity.ok().body(noteService.updateNote(request, email));
     }
-
-    @GetMapping("test")
-    public String Testing(){
-        return "Yohhh boi";
-    }
 }
