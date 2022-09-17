@@ -1,51 +1,33 @@
-version: "3.7"
+version: '3.9'
+
 services:
   postgres:
-    container_name: postgres
-    image: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: iamadmin
-      POSTGRES_DB: lifeCalendar
-      PGDATA: /data/postgres
+    image: postgres:latest
     volumes:
-      - postgres:/data/postgres
+      - db_data:/var/lib/postgres
+    restart: always
     ports:
       - "5432:5432"
-    networks:
-      - postgres
-    restart: always
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB=lifeCalendar
+      POSTGRES_USER=postgres
+      POSTGRES_PASSWORD=iamadmin
+      POSTGRES_URL=jdbc:postgresql://postgres:5432/lifeCalenar
 
-  api_service:
-    build: .
-    restart: always
-    ports:
-      - 3031:3031
+  calendar_backend:
     depends_on:
       - postgres
-    links:
-      - postgres:database
-
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-noupsovan18@gmail.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-
+    build: .
     ports:
-      - "5050:80"
-    networks:
-      - postgres
+      - "3001:3001"
     restart: always
-
-networks:
-  postgres:
-    driver: bridge
+    environment:
+      POSTGRES_DB=lifeCalendar
+      POSTGRES_USER=postgres
+      POSTGRES_PASSWORD=iamadmin
+      POSTGRES_URL=jdbc:postgresql://postgres:5432/lifeCalenar
 
 volumes:
-  postgres:
-  pgadmin:
+  db_data: {}
