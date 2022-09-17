@@ -155,7 +155,7 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public Response getHomeDisplay(String columnId) {
+    public Response getBoxInfo(String columnId) {
         Map<String, Object> result = new HashMap<>();
 
         String token = getToken();
@@ -172,64 +172,7 @@ public class UserService implements UserDetailsService {
         }
 
         if (columnId == null){
-            UserResponse userInfo = new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(), user.getBirthday());
-            result.put("userInfo", userInfo);
-
-
-//        Get week note
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            cal.setTime(new Date());
-            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-
-//        Date From Mon
-            LocalDate d_from = LocalDate.parse(formatter.format(cal.getTime()));
-
-            //Each day of 1 week
-            List<LocalDate> dailyDate = new ArrayList<>();
-            dailyDate.add(d_from);
-            for (int i = 0; i < 6; i++) {
-                cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
-                LocalDate d = LocalDate.parse(formatter.format(cal.getTime()));
-                dailyDate.add(d);
-            }
-
-
-            cal.add(java.util.Calendar.DAY_OF_WEEK, 6);
-            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
-            LocalDate d_to = LocalDate.parse(formatter.format(cal.getTime()));
-
-//        Date To Sun
-
-            Calendar calendar = calendarRepo.findByDateFromAndEmail(d_from, email);
-            if(calendar == null) {
-                // weeks from birthday
-                DateTime d1 = new DateTime(DateTime.parse(user.getBirthday().toString()));
-                DateTime d2 = new DateTime();
-
-                String weeksIdOrColumnId = String.valueOf(Weeks.weeksBetween(d1, d2).getWeeks());
-                calendar = new Calendar(email, weeksIdOrColumnId, d_from, d_to);
-                calendarRepo.save(calendar);
-                List<Note> notes = new ArrayList<>();
-                for (int i = 0; i < 7; i++) {
-                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
-                    notes.add(temp);
-                }
-                result.put("notes", notes);
-            }else {
-                List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
-
-                if (!notes.isEmpty()){
-                    result.put("notes", notes);
-                }else{
-                    notes = new ArrayList<>();
-                    for (int i = 0; i < 7; i++) {
-                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
-                        notes.add(temp);
-                    }
-                    result.put("notes", notes);
-                }
-            }
+            throw new ApiRequestException("Box ID is required");
         }else{
             Calendar calendar = calendarRepo.findByColumnIdAndEmail(columnId, email);
             if(calendar == null) {
@@ -300,6 +243,93 @@ public class UserService implements UserDetailsService {
         );
         return res;
     }
+
+
+    public Response getHomePage() {
+        Map<String, Object> result = new HashMap<>();
+
+        String token = getToken();
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String email = decodedJWT.getSubject();
+
+
+        //        Find user
+        User user = userRepo.findByEmail(email);
+        if(user == null){
+            throw new ApiRequestException("Token is invalid");
+        }
+
+        UserResponse userInfo = new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(), user.getBirthday());
+        result.put("userInfo", userInfo);
+
+
+//        Get week note
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        cal.setTime(new Date());
+        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+
+//        Date From Mon
+        LocalDate d_from = LocalDate.parse(formatter.format(cal.getTime()));
+
+        //Each day of 1 week
+        List<LocalDate> dailyDate = new ArrayList<>();
+        dailyDate.add(d_from);
+        for (int i = 0; i < 6; i++) {
+            cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
+            LocalDate d = LocalDate.parse(formatter.format(cal.getTime()));
+            dailyDate.add(d);
+        }
+
+
+        cal.add(java.util.Calendar.DAY_OF_WEEK, 6);
+        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+        LocalDate d_to = LocalDate.parse(formatter.format(cal.getTime()));
+
+//        Date To Sun
+
+        Calendar calendar = calendarRepo.findByDateFromAndEmail(d_from, email);
+        if(calendar == null) {
+            // weeks from birthday
+            DateTime d1 = new DateTime(DateTime.parse(user.getBirthday().toString()));
+            DateTime d2 = new DateTime();
+
+            String weeksIdOrColumnId = String.valueOf(Weeks.weeksBetween(d1, d2).getWeeks());
+            calendar = new Calendar(email, weeksIdOrColumnId, d_from, d_to);
+            calendarRepo.save(calendar);
+            List<Note> notes = new ArrayList<>();
+            for (int i = 0; i < 7; i++) {
+                Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
+                notes.add(temp);
+            }
+            result.put("notes", notes);
+        }else {
+            List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
+
+            if (!notes.isEmpty()){
+                result.put("notes", notes);
+            }else{
+                notes = new ArrayList<>();
+                for (int i = 0; i < 7; i++) {
+                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
+                    notes.add(temp);
+                }
+                result.put("notes", notes);
+            }
+        }
+
+
+        Response res = new Response(
+                200,
+                "user information",
+                result,
+                LocalDateTime.now()
+        );
+        return res;
+    }
+
     @Transactional
     public Response updateUserProfile(UserProfileRequest request){
         if(request.getCurrentPassword() != null && request.getNewPassword() != null){

@@ -19,7 +19,6 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/")
 @RequiredArgsConstructor
@@ -66,8 +65,13 @@ public class UserController {
         return ResponseEntity.ok().body(userService.updateUserProfile(request));
     }
 
-    @GetMapping(path = "gethomeinfo")
-    public ResponseEntity<Response> getHomeDisplayInfo(@Parameter(ref = "columnId") String columnId) throws IOException, ParseException {
-        return ResponseEntity.ok().body(userService.getHomeDisplay(columnId));
+    @GetMapping(path = "homepage")
+    public ResponseEntity<Response> getHomeDisplayInfo() throws IOException, ParseException {
+        return ResponseEntity.ok().body(userService.getHomePage());
+    }
+
+    @GetMapping(path = "boxInfo")
+    public ResponseEntity<Response> getWeeklyNote(@Parameter(ref = "columnId") String columnId) throws IOException, ParseException {
+        return ResponseEntity.ok().body(userService.getBoxInfo(columnId));
     }
 }

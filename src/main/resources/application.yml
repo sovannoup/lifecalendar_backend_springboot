@@ -1,14 +1,13 @@
 server:
-  port: 3001
   error:
     include-message: always
     include-binding-errors: always
 
 spring:
   datasource:
-    password: ${POSTGRES_PASSWORD}
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
+    password: 3d6658f7879fbeb2c1c4e1a28e958732467eaf4078a1025c0295441eafa52351
+    url: jdbc:postgresql://ec2-52-4-87-74.compute-1.amazonaws.com/d3dmruboqffbd0
+    username: jsdcjhmfxgrhrc
   jpa:
     hibernate:
       ddl-auto: update
