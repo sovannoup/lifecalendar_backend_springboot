@@ -70,8 +70,8 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getHomePage());
     }
 
-    @GetMapping(path = "boxInfo")
-    public ResponseEntity<Response> getWeeklyNote(@Parameter(ref = "columnId") String columnId) throws IOException, ParseException {
-        return ResponseEntity.ok().body(userService.getBoxInfo(columnId));
+    @GetMapping(path = "getweeklynotebyboxid")
+    public ResponseEntity<Response> getWeeklyNote(@Valid @RequestBody GetWeeklyNoteRequest request) throws IOException, ParseException {
+        return ResponseEntity.ok().body(userService.getBoxInfo(request));
     }
 }
