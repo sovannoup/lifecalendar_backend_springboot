@@ -23,11 +23,7 @@ public class User implements UserDetails {
     @NotBlank(message = "Firstname should not be blank")
     @NotNull(message = "Firstname is required")
     @Size(max = 30, message = "Firstname must not be more than 30 digit")
-    private String firstname;
-    @NotBlank(message = "Lastname should not be blank")
-    @NotNull(message = "Lastname is required")
-    @Size(max = 30, message = "Lastname must not be more than 30 digit")
-    private String lastname;
+    private String username;
     @NotBlank(message = "Email should not be blank")
     @NotNull(message = "Email is required")
     @Email(message = "Email is invalid")
@@ -47,9 +43,8 @@ public class User implements UserDetails {
     private Boolean enabled = false;
     private String resetCode = null;
 
-    public User(String firstname, String lastname, String email, LocalDateTime birthday, String password ,UserRole userRole) {
-        this.firstname = firstname;
-        this.lastname = lastname;
+    public User(String username, String email, LocalDateTime birthday, String password ,UserRole userRole) {
+        this.username = username;
         this.email = email;
         this.birthday = birthday;
         this.password = password;
@@ -64,7 +59,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return firstname + " " + lastname;
+        return this.username;
     }
 
     @Override

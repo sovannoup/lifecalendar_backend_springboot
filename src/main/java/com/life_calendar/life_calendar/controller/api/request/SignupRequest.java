@@ -12,15 +12,10 @@ import java.util.Date;
 @Data
 public class SignupRequest {
 
-    @NotBlank(message = "Firstname should not be blank")
-    @NotNull(message = "Firstname is required")
-    @Size(max = 30, message = "Firstname must not be more than 30 digit")
-    private String firstname;
-
-    @NotBlank(message = "Lastname should not be blank")
-    @NotNull(message = "Lastname is required")
-    @Size(max = 30, message = "Lastname must not be more than 30 digit")
-    private String lastname;
+    @NotBlank(message = "Username should not be blank")
+    @NotNull(message = "Username is required")
+    @Size(max = 30, message = "Username must not be more than 30 digit")
+    private String username;
 
     @NotBlank(message = "Email should not be blank")
     @NotNull(message = "Email is required")

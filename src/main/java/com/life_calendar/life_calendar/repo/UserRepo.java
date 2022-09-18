@@ -41,12 +41,12 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Transactional
     @Modifying
     @Query("UPDATE Users a " +
-            "SET a.firstname = ?1, a.lastname = ?2, a.password = ?3, a.birthday = ?4 WHERE a.email = ?5")
-    int updateUserProfile(String firstname, String lastname, String newPassword, LocalDateTime birthday, String email);
+            "SET a.username = ?1, a.password = ?2, a.birthday = ?3 WHERE a.email = ?4")
+    int updateUserProfile(String username, String newPassword, LocalDateTime birthday, String email);
 
     @Transactional
     @Modifying
     @Query("UPDATE Users a " +
-            "SET a.firstname = ?1, a.lastname = ?2, a.birthday = ?3 WHERE a.email = ?4")
-    int updateProfileWithoutPassword(String firstname, String lastname, LocalDateTime birthday, String email);
+            "SET a.username = ?1, a.birthday = ?2 WHERE a.email = ?3")
+    int updateProfileWithoutPassword(String username, LocalDateTime birthday, String email);
 }

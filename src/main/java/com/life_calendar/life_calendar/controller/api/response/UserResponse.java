@@ -7,16 +7,14 @@ import java.time.LocalDateTime;
 @Data
 public class UserResponse {
     private Long id;
-    private String firstname;
-    private String lastname;
+    private String username;
     private String email;
     private LocalDateTime birthday;
     private String imageUrl;
 
-    public UserResponse(Long id, String firstname, String lastname, String email, LocalDateTime birthday) {
+    public UserResponse(Long id, String username, String email, LocalDateTime birthday) {
         this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
+        this.username = username;
         this.email = email;
         this.birthday = birthday;
     }

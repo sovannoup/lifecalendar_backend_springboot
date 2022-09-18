@@ -16,7 +16,6 @@ import com.life_calendar.life_calendar.repo.NoteRepo.NoteRepo;
 import com.life_calendar.life_calendar.repo.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +84,7 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException("Email already exist");
         }
         String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
-        User user = new User(request.getFirstname(),request.getLastname(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
+        User user = new User(request.getUsername(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
 
         Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
         String token = JWT.create()
@@ -113,13 +112,12 @@ public class UserService implements UserDetailsService {
         Map<String, String> result = new HashMap<>();
         result.put("token", token);
         result.put("verifyCode", verifyToken);
-        Response res = new Response(
+        return new Response(
                 200,
                 "Signup successfully",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     public Response reset(ResetRequest request){
@@ -145,13 +143,12 @@ public class UserService implements UserDetailsService {
 
         Map<String, Object> result = new HashMap<>();
         result.put("verifyCode", code);
-        Response res = new Response(
+        return new Response(
                 200,
                 "Verify code already sent",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
 
 
@@ -223,13 +220,12 @@ public class UserService implements UserDetailsService {
             }
         }
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "user information",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
 
 
@@ -249,7 +245,7 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException("Token is invalid");
         }
 
-        UserResponse userInfo = new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(), user.getBirthday());
+        UserResponse userInfo = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getBirthday());
         result.put("userInfo", userInfo);
 
 
@@ -308,14 +304,12 @@ public class UserService implements UserDetailsService {
             }
         }
 
-
-        Response res = new Response(
+        return new Response(
                 200,
                 "user information",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -327,7 +321,7 @@ public class UserService implements UserDetailsService {
                 throw new ApiRequestException("Invalid current password");
             }
             String newEncode = bCryptPasswordEncoder.encode(request.getNewPassword());
-            userRepo.updateUserProfile(request.getFirstname(), request.getLastname(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            userRepo.updateUserProfile(request.getUsername(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
             log.info("Updating info with password input");
         }else{
             boolean isUser = userRepo.existsByEmail(request.getEmail());
@@ -335,17 +329,16 @@ public class UserService implements UserDetailsService {
             {
                 throw new ApiRequestException("Couldn't find user with that Email");
             }
-            userRepo.updateProfileWithoutPassword(request.getFirstname(), request.getLastname(), LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            userRepo.updateProfileWithoutPassword(request.getUsername(), LocalDateTime.parse(request.getBirthday()), request.getEmail());
             log.info("Updating info without password input");
         }
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "user information updated",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -379,13 +372,12 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException(e.getMessage());
         }
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "Password already updated",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -398,13 +390,12 @@ public class UserService implements UserDetailsService {
         Path path = Paths.get(context.getRealPath("uploads") + file.getOriginalFilename());
         Files.write(path, bytes);
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "Profile picture already uploaded",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -421,13 +412,13 @@ public class UserService implements UserDetailsService {
 
         confirmTokenService.setConfirmedAt(token);
         userRepo.enableUser(confirmToken.getUser().getEmail());
-        Response res = new Response(
+
+        return new Response(
                 200,
                 "Account is verified",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     public String getToken(){

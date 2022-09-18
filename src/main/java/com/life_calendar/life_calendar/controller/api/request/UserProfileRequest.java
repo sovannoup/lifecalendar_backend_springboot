@@ -11,15 +11,10 @@ public class UserProfileRequest {
     @Email(message = "Email is invalid")
     private String email;
 
-    @NotBlank(message = "Firstname should not be blank")
-    @NotNull(message = "Firstname is required")
-    @Size(max = 30, message = "Firstname must not be more than 30 digit")
-    private String firstname;
-
-    @NotBlank(message = "Lastname should not be blank")
-    @NotNull(message = "Lastname is required")
-    @Size(max = 30, message = "Lastname must not be more than 30 digit")
-    private String lastname;
+    @NotBlank(message = "Username should not be blank")
+    @NotNull(message = "Username is required")
+    @Size(max = 30, message = "Username must not be more than 30 digit")
+    private String username;
 
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$", message = "require at least 1 lower cha, 1 upper cha, 1 number, and at least 8 digit")
     private String currentPassword;

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api/user/")
 @RequiredArgsConstructor
 @Slf4j
 @SecurityRequirement(name = "lifecalendar")
@@ -68,10 +68,5 @@ public class UserController {
     @GetMapping(path = "homepage")
     public ResponseEntity<Response> getHomeDisplayInfo() throws IOException, ParseException {
         return ResponseEntity.ok().body(userService.getHomePage());
-    }
-
-    @GetMapping(path = "getweeklynotebyboxid")
-    public ResponseEntity<Response> getWeeklyNote(@Valid @RequestBody GetWeeklyNoteRequest request) throws IOException, ParseException {
-        return ResponseEntity.ok().body(userService.getBoxInfo(request));
     }
 }
