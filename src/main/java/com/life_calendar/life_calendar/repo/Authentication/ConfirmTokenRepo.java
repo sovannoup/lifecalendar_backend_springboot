@@ -21,4 +21,11 @@ public interface ConfirmTokenRepo extends JpaRepository<ConfirmToken, Long> {
             "SET c.confirmedAt = ?2 " +
             "WHERE c.token = ?1")
     int updateConfirmedAt(String token, LocalDateTime confirmedAt);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE confirmtoken c " +
+            "SET c.token = ?1, c.createdAt = ?2, c.expiresAt = ?3 " +
+            "WHERE c.email = ?4")
+    int updateToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, String email);
 }

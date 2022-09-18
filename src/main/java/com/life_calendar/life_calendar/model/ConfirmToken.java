@@ -29,17 +29,12 @@ public class ConfirmToken  {
 
     private LocalDateTime confirmedAt;
 
-    @ManyToOne
-    @JoinColumn(
-            nullable = false,
-            name = "Users_Id"
-    )
-    private User user;
+    private String email;
 
-    public ConfirmToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, User user){
+    public ConfirmToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, String email){
         this.token = token;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.user = user;
+        this.email = email;
     }
 }

@@ -11,6 +11,7 @@ import com.life_calendar.life_calendar.controller.api.response.UserResponse;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
 import com.life_calendar.life_calendar.model.*;
 import com.life_calendar.life_calendar.model.Calendar;
+import com.life_calendar.life_calendar.repo.Authentication.ConfirmTokenRepo;
 import com.life_calendar.life_calendar.repo.Calendar.CalendarRepo;
 import com.life_calendar.life_calendar.repo.NoteRepo.NoteRepo;
 import com.life_calendar.life_calendar.repo.UserRepo;
@@ -53,6 +54,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     HttpServletRequest httpServletRequest;
     private final UserRepo userRepo;
+    private final ConfirmTokenRepo confirmTokenRepo;
     private final CalendarRepo calendarRepo;
     private final NoteRepo noteRepo;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -79,38 +81,41 @@ public class UserService implements UserDetailsService {
 
     public Response signup(SignupRequest request){
         User isUser = userRepo.findByEmail(request.getEmail());
-        if(isUser != null)
+        if(isUser != null && isUser.getEnabled())
         {
             throw new ApiRequestException("Email already exist");
         }
         String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
-        User user = new User(request.getUsername(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
-
-        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
-        String token = JWT.create()
-                .withSubject(request.getEmail())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 24 * 60 * 60 * 1000)) // 15 days
-                .withIssuer("/api/signup")
-                .withClaim("roles",user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .sign(algorithm);
-        log.info(user.toString());
-        userRepo.save(user);
-
         String verifyToken = UUID.randomUUID().toString();
-        ConfirmToken confirmToken = new ConfirmToken(
-                verifyToken,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
-                user
-        );
-        log.info("Verify Token is :{}",verifyToken);
+        if(isUser != null && !isUser.getEnabled())
+        {
+            userRepo.updateUser(request.getUsername(), encodedPass, request.getBirthday(), request.getEmail());
+            confirmTokenRepo.updateToken(
+                    verifyToken,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(15),
+                    isUser.getEmail()
+            );
+        }else
+        {
+            User user = new User(request.getUsername(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
+            log.info(user.toString());
+            userRepo.save(user);
 
-        confirmTokenService.saveConfirmToken(confirmToken);
+            ConfirmToken confirmToken = new ConfirmToken(
+                    verifyToken,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(15),
+                    user.getEmail()
+            );
+            log.info("Verify Token is :{}",verifyToken);
+
+            confirmTokenService.saveConfirmToken(confirmToken);
+        }
 
 //        String link = "http://localhost:8080/api/signup/confirm?token=" + token;
 //        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), link));
         Map<String, String> result = new HashMap<>();
-        result.put("token", token);
         result.put("verifyCode", verifyToken);
         return new Response(
                 200,
@@ -407,11 +412,11 @@ public class UserService implements UserDetailsService {
 
         LocalDateTime expiredAt = confirmToken.getExpiresAt();
         if(expiredAt.isBefore(LocalDateTime.now())){
-            throw new ApiRequestException("Token expired");
+            throw new ApiRequestException("Confirm Token expired");
         }
 
         confirmTokenService.setConfirmedAt(token);
-        userRepo.enableUser(confirmToken.getUser().getEmail());
+        userRepo.enableUser(confirmToken.getEmail());
 
         return new Response(
                 200,
