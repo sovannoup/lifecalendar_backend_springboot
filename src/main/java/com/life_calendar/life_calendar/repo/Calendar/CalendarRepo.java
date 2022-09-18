@@ -6,11 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Repository
 @Transactional
 public interface CalendarRepo extends JpaRepository<Calendar, Long> {
-    Calendar findByDateFromAndEmail(LocalDate d_from, String Email);
     Calendar findByBoxIdAndEmail(String boxId, String email);
 }

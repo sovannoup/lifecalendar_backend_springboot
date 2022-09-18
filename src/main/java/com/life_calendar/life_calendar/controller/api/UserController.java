@@ -65,8 +65,8 @@ public class UserController {
         return ResponseEntity.ok().body(userService.updateUserProfile(request));
     }
 
-    @GetMapping(path = "homepage")
-    public ResponseEntity<Response> getHomeDisplayInfo() throws IOException, ParseException {
-        return ResponseEntity.ok().body(userService.getHomePage());
+    @PostMapping(path = "homepage")
+    public ResponseEntity<Response> getHomeDisplayInfo(@Valid @RequestBody GetWeeklyNoteRequest request) throws IOException, ParseException {
+        return ResponseEntity.ok().body(userService.getHomePage(request));
     }
 }
