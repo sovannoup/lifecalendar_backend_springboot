@@ -25,13 +25,13 @@ public class Calendar {
     private String email = "";
     @NotBlank(message = "Column ID should not be blank")
     @NotNull(message = "Column ID is required")
-    private String columnId = "";
+    private String boxId = "";
     private LocalDate dateFrom;
     private LocalDate dateTo;
 
-    public Calendar(String email, String columnId, LocalDate dateFrom, LocalDate dateTo) {
+    public Calendar(String email, String boxId, LocalDate dateFrom, LocalDate dateTo) {
         this.email = email;
-        this.columnId = columnId;
+        this.boxId = boxId;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
     }

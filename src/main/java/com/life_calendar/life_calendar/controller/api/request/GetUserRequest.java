@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class GetUserRequest {
-    private String columnId;
+    private String boxId;
 }

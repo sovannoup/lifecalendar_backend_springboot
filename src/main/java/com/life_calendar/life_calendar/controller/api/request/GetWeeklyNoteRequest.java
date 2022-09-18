@@ -11,7 +11,7 @@ public class GetWeeklyNoteRequest {
 
     @NotBlank(message = "Id should not be blank")
     @NotNull(message = "Id is required")
-    private String columnId;
+    private String boxId;
 
     @NotBlank(message = "Email should not be blank")
     @NotNull(message = "Email is required")

@@ -166,7 +166,7 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException("Token is invalid");
         }
 
-        Calendar calendar = calendarRepo.findByColumnIdAndEmail(request.getColumnId(), request.getEmail());
+        Calendar calendar = calendarRepo.findByBoxIdAndEmail(request.getBoxId(), request.getEmail());
         if(calendar == null) {
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -174,7 +174,7 @@ public class UserService implements UserDetailsService {
             Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
             calen.setTime(bd);
             calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getColumnId()) + 1);
+            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getBoxId()) + 1);
             LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
             List<LocalDate> dailyDate = new ArrayList<>();
             dailyDate.add(d_from);
@@ -186,24 +186,24 @@ public class UserService implements UserDetailsService {
             calen.add(java.util.Calendar.DAY_OF_WEEK, 6);
             calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
             LocalDate d_to = LocalDate.parse(formatter.format(calen.getTime()));
-            calendar = new Calendar(request.getEmail(), request.getColumnId(), d_from, d_to);
+            calendar = new Calendar(request.getEmail(), request.getBoxId(), d_from, d_to);
 
             calendarRepo.save(calendar);
             List<Note> notes = new ArrayList<>();
             for (int i = 0; i < 7; i++) {
-                Note temp = new Note(calendar.getColumnId(), request.getEmail(),dailyDate.get(i), "", LocalDateTime.now());
+                Note temp = new Note(calendar.getBoxId(), request.getEmail(),dailyDate.get(i), "", LocalDateTime.now());
                 notes.add(temp);
             }
             result.put("notes", notes);
         }else {
-            List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), request.getEmail());
+            List<Note> notes =  noteRepo.findByBoxIdAndEmail(calendar.getBoxId(), request.getEmail());
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Calendar calen = java.util.Calendar.getInstance();
             Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
             calen.setTime(bd);
             calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getColumnId()) + 1);
+            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getBoxId()) + 1);
             LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
             List<LocalDate> dailyDate = new ArrayList<>();
             dailyDate.add(d_from);
@@ -218,7 +218,7 @@ public class UserService implements UserDetailsService {
             }else{
                 notes = new ArrayList<>();
                 for (int i = 0; i < 7; i++) {
-                    Note temp = new Note(calendar.getColumnId(), request.getEmail(), dailyDate.get(i), "", LocalDateTime.now());
+                    Note temp = new Note(calendar.getBoxId(), request.getEmail(), dailyDate.get(i), "", LocalDateTime.now());
                     notes.add(temp);
                 }
                 result.put("notes", notes);
@@ -235,6 +235,7 @@ public class UserService implements UserDetailsService {
 
 
     public Response getHomePage() {
+
         Map<String, Object> result = new HashMap<>();
 
         String token = getToken();
@@ -290,19 +291,19 @@ public class UserService implements UserDetailsService {
             calendarRepo.save(calendar);
             List<Note> notes = new ArrayList<>();
             for (int i = 0; i < 7; i++) {
-                Note temp = new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now());
+                Note temp = new Note(calendar.getBoxId(), email ,dailyDate.get(i), "", LocalDateTime.now());
                 notes.add(temp);
             }
             result.put("notes", notes);
         }else {
-            List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
+            List<Note> notes =  noteRepo.findByBoxIdAndEmail(calendar.getBoxId(), email);
 
             if (!notes.isEmpty()){
                 result.put("notes", notes);
             }else{
                 notes = new ArrayList<>();
                 for (int i = 0; i < 7; i++) {
-                    Note temp = new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now());
+                    Note temp = new Note(calendar.getBoxId(), email ,dailyDate.get(i), "", LocalDateTime.now());
                     notes.add(temp);
                 }
                 result.put("notes", notes);

@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 public class Note {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String columnId;
+    private String boxId;
     private String email;
     private LocalDate noteDate;
     private String content = "";
     private LocalDateTime lastEditedAt;
 
-    public Note(String columnId, String email, LocalDate noteDate, String content, LocalDateTime lastEditedAt) {
-        this.columnId = columnId;
+    public Note(String boxId, String email, LocalDate noteDate, String content, LocalDateTime lastEditedAt) {
+        this.boxId = boxId;
         this.email = email;
         this.noteDate = noteDate;
         this.content = content;

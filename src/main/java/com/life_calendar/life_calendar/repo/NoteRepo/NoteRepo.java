@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 @Transactional
 public interface NoteRepo extends JpaRepository<Note, Long> {
-    List<Note> findByColumnIdAndEmail(String id, String email);
+    List<Note> findByBoxIdAndEmail(String id, String email);
 
     Note findByIdAndEmail(Long id, String email);
     @Transactional

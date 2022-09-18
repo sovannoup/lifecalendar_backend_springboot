@@ -12,5 +12,5 @@ import java.time.LocalDateTime;
 @Transactional
 public interface CalendarRepo extends JpaRepository<Calendar, Long> {
     Calendar findByDateFromAndEmail(LocalDate d_from, String Email);
-    Calendar findByColumnIdAndEmail(String columnId, String email);
+    Calendar findByBoxIdAndEmail(String boxId, String email);
 }
