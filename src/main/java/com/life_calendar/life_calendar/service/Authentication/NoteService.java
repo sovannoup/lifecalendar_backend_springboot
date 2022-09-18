@@ -1,5 +1,6 @@
 package com.life_calendar.life_calendar.service.Authentication;
 
+import com.life_calendar.life_calendar.controller.api.request.GetSingleNoteRequest;
 import com.life_calendar.life_calendar.controller.api.request.NoteRequest;
 import com.life_calendar.life_calendar.controller.api.response.Response;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
@@ -24,7 +25,7 @@ public class NoteService {
     private final NoteRepo noteRepo;
 
     @Async
-    public Response getSingleNote(NoteRequest request, String email){
+    public Response getSingleNote(GetSingleNoteRequest request, String email){
         User isUser = userRepo.findByEmail(email);
         if(isUser == null)
         {
@@ -61,15 +62,19 @@ public class NoteService {
         User isUserExisted = userRepo.findByEmail(email);
         if(isUserExisted == null)
         {
-            throw new ApiRequestException("Email doesn't exist");
-        }
-        if(request.getId() == null){
-            throw new ApiRequestException("id is required");
+            throw new ApiRequestException("Token is invalid");
         }
         if(request.getContent() == null){
             throw new ApiRequestException("Content is required");
         }
-        noteRepo.updateNoteContent(Long.parseLong(request.getId()), request.getContent(), email, LocalDateTime.now());
+        Note note = noteRepo.findByNoteDateAndEmail(request.getNoteDate(), email);
+        if(note == null)
+        {
+            Note newNote = new Note(request.getBoxId(), email, request.getNoteDate(), request.getContent(), LocalDateTime.now());
+            noteRepo.save(newNote);
+        }else{
+            noteRepo.updateNoteContent(request.getNoteDate(), request.getContent(), email, LocalDateTime.now());
+        }
 
         Map<String, String> result = new HashMap<>();
 

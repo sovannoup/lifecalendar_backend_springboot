@@ -5,6 +5,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.life_calendar.life_calendar.controller.api.request.GetSingleNoteRequest;
 import com.life_calendar.life_calendar.controller.api.request.GetWeeklyNoteRequest;
 import com.life_calendar.life_calendar.controller.api.request.NoteRequest;
 import com.life_calendar.life_calendar.controller.api.request.UpdatePasswordRequest;
@@ -46,11 +47,11 @@ public class NoteController {
     }
 
     @PostMapping("getnotebyid")
-    public ResponseEntity<Response> getSingleNote(@Valid @RequestBody NoteRequest request){
+    public ResponseEntity<Response> getSingleNote(@Valid @RequestBody GetSingleNoteRequest request){
         String email = getEmailHeader();
         return ResponseEntity.ok().body(noteService.getSingleNote(request, email));
     }
-    @PostMapping("updatenote")
+    @PutMapping("updatenote")
     public ResponseEntity<Response> updateNote(@Valid @RequestBody NoteRequest request){
         String email = getEmailHeader();
         return ResponseEntity.ok().body(noteService.updateNote(request, email));
