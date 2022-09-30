@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -28,7 +29,8 @@ public class ConfirmToken  {
     private LocalDateTime expiresAt;
 
     private LocalDateTime confirmedAt;
-
+    @NotNull(message = "Email is required")
+    @Email
     private String email;
 
     public ConfirmToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, String email){

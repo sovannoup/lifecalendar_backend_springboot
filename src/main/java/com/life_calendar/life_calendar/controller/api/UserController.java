@@ -9,12 +9,14 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +40,8 @@ public class UserController {
         if(token == null){
             throw new ApiRequestException("Token is required");
         }
-        return ResponseEntity.ok().body(userService.confirmToken(token));
+        userService.confirmToken(token);
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("http://178.128.109.23:3000/login")).build();
     }
 
     @PostMapping("reset")

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -42,17 +43,17 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE Users a " +
             "SET a.username = ?1, a.password = ?2, a.birthday = ?3 WHERE a.email = ?4")
-    int updateUserProfile(String username, String newPassword, LocalDateTime birthday, String email);
+    int updateUserProfile(String username, String newPassword, LocalDate birthday, String email);
 
     @Transactional
     @Modifying
     @Query("UPDATE Users a " +
             "SET a.username = ?1, a.password = ?2, a.birthday = ?3 WHERE a.email = ?4")
-    int updateUser(String username, String newPassword, LocalDateTime birthday, String email);
+    int updateUser(String username, String newPassword, LocalDate birthday, String email);
 
     @Transactional
     @Modifying
     @Query("UPDATE Users a " +
             "SET a.username = ?1, a.birthday = ?2 WHERE a.email = ?3")
-    int updateProfileWithoutPassword(String username, LocalDateTime birthday, String email);
+    int updateProfileWithoutPassword(String username, LocalDate birthday, String email);
 }

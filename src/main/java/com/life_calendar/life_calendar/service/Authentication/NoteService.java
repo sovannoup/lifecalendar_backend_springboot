@@ -64,6 +64,10 @@ public class NoteService {
         {
             throw new ApiRequestException("Token is invalid");
         }
+        String userId[] = request.getBoxId().split("/");
+        if (!isUserExisted.getId().toString().equals(userId[0])){
+            throw new ApiRequestException("Wrong BoxId");
+        }
         if(request.getContent() == null){
             throw new ApiRequestException("Content is required");
         }

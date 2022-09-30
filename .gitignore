@@ -2,7 +2,6 @@
 *.iml
 *.ipr
 *.iws
-*.jar
 *.sw?
 *~
 .#*
@@ -35,7 +34,6 @@ lib/
 manifest.yml
 out
 overridedb.*
-target
 .flattened-pom.xml
 secrets.yml
 .gradletasknamecache

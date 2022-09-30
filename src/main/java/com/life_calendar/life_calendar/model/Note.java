@@ -1,10 +1,13 @@
 package com.life_calendar.life_calendar.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -15,8 +18,13 @@ import java.time.LocalDateTime;
 public class Note {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull(message = "BoxId is required")
     private String boxId;
+    @Email
+    @NotNull(message = "Email is required")
     private String email;
+    @NotNull(message = "Note Date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate noteDate;
     private String content = "";
     private LocalDateTime lastEditedAt;

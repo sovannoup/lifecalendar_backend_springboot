@@ -1,5 +1,6 @@
 package com.life_calendar.life_calendar.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +27,11 @@ public class Calendar {
     @NotBlank(message = "Column ID should not be blank")
     @NotNull(message = "Column ID is required")
     private String boxId = "";
+    @NotNull(message = "Start Date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startDate;
+    @NotNull(message = "End Date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     public Calendar(String email, String boxId, LocalDate startDate, LocalDate endDate) {
